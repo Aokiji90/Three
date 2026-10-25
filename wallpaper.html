@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>3D Live Wallpaper</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000000;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- استدعاء مكتبة Three.js من الـ CDN الرسمي -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // إعداد المشهد الرسومي
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        // إنشاء شكل هندسي نيون ثلاثي الأبعاد تفاعلي
+        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x00f0ff,
+            roughness: 0.2,
+            metalness: 0.8,
+            wireframe: false
+        });
+        const torusKnot = new THREE.Mesh(geometry, material);
+        scene.add(torusKnot);
+
+        // إضافة إضاءة ملونة
+        const light1 = new THREE.PointLight(0x00f0ff, 3, 50);
+        light1.position.set(20, 20, 20);
+        scene.add(light1);
+
+        const light2 = new THREE.PointLight(0x8b5cf6, 3, 50);
+        light2.position.set(-20, -20, 20);
+        scene.add(light2);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        camera.position.z = 30;
+
+        // تفاعل اللمس والتحريك بالأصبع
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+
+        document.addEventListener('pointermove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) * 0.002;
+            mouseY = (event.clientY - window.innerHeight / 2) * 0.002;
+        });
+
+        // حلقة الرسم والأنيميشن المستمر
+        function animate() {
+            requestAnimationFrame(animate);
+
+            targetRotationX += (mouseX - targetRotationX) * 0.05;
+            targetRotationY += (mouseY - targetRotationY) * 0.05;
+
+            torusKnot.rotation.x += 0.01 + targetRotationY;
+            torusKnot.rotation.y += 0.01 + targetRotationX;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // التكيف التلقائي مع تغيير حجم الشاشة أو تدوير الموبايل
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
 
